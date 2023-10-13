@@ -1,32 +1,40 @@
 // service-a.js
-const express = require('express');
-const { Kafka } = require('kafkajs');
+const express = require("express");
 
 const app = express();
 const port = process.env.PORT || 3000;
-const kafkaBroker = process.env.KAFKA_BROKER||'localhost:9092';
-const kafka = new Kafka({
-  clientId: 'weather-service',
-  brokers: [kafkaBroker], // Update with your Kafka broker
-});
 
-const producer = kafka.producer();
+const amqp = require('amqplib');
 
-app.get('/update-weather/:city/:temperature', async (req, res) => {
+const amqpURL = 'amqp://guest:guest@rabbitmq'; // RabbitMQ server URL
+
+
+app.get("/update-weather/:city/:temperature", async (req, res) => {
   const city = req.params.city;
   const temperature = req.params.temperature;
 
   try {
-    await producer.connect();
-    await producer.send({
-      topic: 'weather-updates',
-      messages: [{ value: JSON.stringify({ city, temperature }) }],
-    });
-    await producer.disconnect();
-    res.json({ status: 'Weather update sent to Kafka' });
+    const connection = await amqp.connect(amqpURL);
+    const channel = await connection.createChannel();
+    const message=JSON.stringify({ city, temperature });
+    const queueName = "weather-updates";
+
+    await channel.assertQueue(queueName, { durable: false });
+    await channel.sendToQueue(
+      queueName,
+      Buffer.from(message)
+    );
+    await channel.assertExchange(queueName,'direct',{ durable: true})
+    await channel.publish(queueName, '', Buffer.from(message));
+    console.log("Sent message to RabbitMQ:", message);
+    res.json({message})
+    channel.close();
+    connection.close();
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to send weather update to Kafka' });
+    res
+      .status(500)
+      .json({ error: "Failed to send weather update to rabbitMQ" });
   }
 });
 

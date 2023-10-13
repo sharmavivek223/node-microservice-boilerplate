@@ -1,28 +1,38 @@
-// service-b.js
-const { Kafka } = require('kafkajs');
-const express = require('express');
+const express = require("express");
+const amqp = require("amqplib");
 
 const app = express();
 const port = process.env.PORT || 4000;
-const kafkaBroker = process.env.KAFKA_BROKER||'localhost:9092';
-
-const kafka = new Kafka({
-  clientId: 'weather-dashboard',
-  brokers: [kafkaBroker], // Update with your Kafka broker
-});
-
-const consumer = kafka.consumer({ groupId: 'weather-dashboard-group' });
+const amqpURL = "amqp://guest:guest@rabbitmq"; // RabbitMQ server URL
 
 async function consumeWeatherUpdates() {
-  await consumer.connect();
-  await consumer.subscribe({ topic: 'weather-updates', fromBeginning: true });
+  try {
+    const connection = await amqp.connect(amqpURL);
+    const channel = await connection.createChannel();
 
-  await consumer.run({
-    eachMessage: async ({ message }) => {
-      const weatherUpdate = JSON.parse(message.value.toString());
-      console.log('Received weather update:', weatherUpdate);
-    },
-  });
+    const queueName = "weather-updates";
+    process.once("SIGINT", async () => {
+      console.log("closed connection");
+      await channel.close();
+      await connection.close();
+    });
+    await channel.assertQueue(queueName, { durable: false });
+
+    await channel.consume(
+      queueName,
+      (message) => {
+        if (message) {
+          console.log(
+            " [x] Received '%s'",
+            JSON.parse(message.content.toString())
+          );
+        }
+      },
+      { noAck: true }
+    );
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 consumeWeatherUpdates();
