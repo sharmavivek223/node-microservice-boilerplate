@@ -1,32 +1,34 @@
 const express = require('express');
 const httpProxy = require('http-proxy');
+
 const app = express();
+const PORT = 4000;
+const proxy = httpProxy.createProxyServer();
 
-const userServiceProxy = httpProxy.createProxyServer({
-  target: 'http://localhost:3000',
+const routes = {
+    'user': 'http://user-service:3000',
+    'order': 'http://order-service:3001',
+    'inventory': 'http://inventory-service:3002'
+};
+
+// Middleware to forward requests
+app.all('*', (req, res) => {
+    const targetServiceUrl = routes[req.path.split('/')[1]];
+    if (!targetServiceUrl) {
+        return res.status(404).send('Not found');
+    }
+
+    proxy.web(req, res, {
+        target: targetServiceUrl,
+        changeOrigin: true
+    });
 });
 
-const orderServiceProxy = httpProxy.createProxyServer({
-  target: 'http://localhost:3001',
+proxy.on('error', (err, req, res) => {
+    console.error('Proxy error:', err);
+    res.status(500).send('Service error');
 });
 
-const inventoryServiceProxy = httpProxy.createProxyServer({
-  target: 'http://localhost:3002',
+app.listen(PORT, () => {
+    console.log(`API Gateway running on port ${PORT}`);
 });
-
-// User routes
-app.all('/user/*', (req, res) => {
-  userServiceProxy.web(req, res);
-});
-
-// Order routes
-app.all('/order/*', (req, res) => {
-  orderServiceProxy.web(req, res);
-});
-
-// Inventory routes
-app.all('/inventory/*', (req, res) => {
-  inventoryServiceProxy.web(req, res);
-});
-
-app.listen(4000);

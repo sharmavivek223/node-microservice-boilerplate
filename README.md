@@ -1,13 +1,15 @@
 # node-microservice-boilerplate
-
+### Services
+1. User Service
+2. Order Service
+3. Inventory Service
+4. API Gateway
 ### Commands
-To recreate changed services and run on docker
-```bash
-docker-compose rm -f                                                                                           [13/10/23 | 1:42:35]
-docker-compose pull
-docker-compose up --build -d
-```
-
-### Links 
-- rabbitMQ UI - http://localhost:15672
-- API endpoint - http://localhost:3000/update-weather/jaipur/30
+- To recreate changed services and run on docker
+    ```bash
+    npm run docker-up
+    ```
+- To spin services on kubernetes cluster
+    ```bash
+    npm run k8s-up
+    ```
