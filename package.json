@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "docker-up": "docker-compose rm -f && docker-compose pull && docker-compose up --build -d",
-    "k8s-up": ""
+    "k8s-up": "sh k8s-deployment.sh",
+    "k8s-down": "minikube stop && minikube delete"
   },
   "keywords": [],
   "author": "",

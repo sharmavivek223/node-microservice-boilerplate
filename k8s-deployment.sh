@@ -12,36 +12,21 @@ minikube start
 echo "Setting Docker environment..."
 eval $(minikube docker-env)
 
-# Optional: Build Docker images
-# Navigate to your service directories and build images
-# echo "Building Docker images..."
-# docker build -t weather-service ./services/weather-service
-# docker build -t weather-dashboard ./services/weather-dashboard
+docker build -t user-service ./services/user-service
+docker build -t order-service ./services/order-service
+docker build -t inventory-service ./services/inventory-service
+docker build -t api-gateway ./services/api-gateway
 
-# Deploy resources to Minikube
-# Navigate to your Kubernetes manifests directory
-echo "Deploying resources to Minikube..."
 
-echo "Deploying RabbitMQ-related manifests..."
-kubectl apply -f k8s/rabbitmq/pv-pvc.yaml
-kubectl apply -f k8s/rabbitmq/deployment.yaml
-kubectl apply -f k8s/rabbitmq/service.yaml
-
-echo "Deploying weather-service manifests..."
-kubectl apply -f k8s/weather-service/deployment.yaml
-kubectl apply -f k8s/weather-service/service.yaml
-
-echo "Deploying weather-dashboard manifests..."
-kubectl apply -f k8s/weather-dashboard/build-config-local.yaml
-kubectl apply -f k8s/weather-dashboard/deployment.yaml
-kubectl apply -f k8s/weather-dashboard/service.yaml
-
-# Confirm that all resources are up and running
-echo "Listing all running resources..."
-kubectl get all
-
-# Optionally, enable access to services
-# echo "Enabling access to weather-dashboard service..."
-# minikube service weather-dashboard
-
-echo "Deployment completed."
+kubectl apply -f ./k8s-manifests/mongodb/deployment.yaml
+kubectl apply -f ./k8s-manifests/mongodb/service.yaml
+kubectl apply -f ./k8s-manifests/rabbitmq/deployment.yaml
+kubectl apply -f ./k8s-manifests/rabbitmq/service.yaml
+kubectl apply -f ./k8s-manifests/user-service/deployment.yaml
+kubectl apply -f ./k8s-manifests/user-service/service.yaml
+kubectl apply -f ./k8s-manifests/order-service/deployment.yaml
+kubectl apply -f ./k8s-manifests/order-service/service.yaml
+kubectl apply -f ./k8s-manifests/inventory-service/deployment.yaml
+kubectl apply -f ./k8s-manifests/inventory-service/service.yaml
+kubectl apply -f ./k8s-manifests/api-gateway-service/deployment.yaml
+kubectl apply -f ./k8s-manifests/api-gateway-service/service.yaml
