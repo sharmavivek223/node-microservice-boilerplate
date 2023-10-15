@@ -1,38 +1,45 @@
-version: "3"
+version: '3'
+
 services:
-  rabbitmq:
-    image: rabbitmq:3.8-management-alpine
-    container_name: "rabbitmq"
+  mongodb:
+    image: mongo:latest
     ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-    networks:
-      - rabbitmq_nodejs
-  weather-service:
-    build:
-      context: ./services/weather-service
-    container_name: weather-service
+      - "27017:27017"
+
+  rabbitmq:
+    image: "rabbitmq"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  user-service:
+    build: ./services/user-service
     ports:
       - "3000:3000"
     depends_on:
+      - mongodb
       - rabbitmq
-    environment:
-      KAFKA_BROKER: kafka:9092
-    networks:
-      - rabbitmq_nodejs
-  weather-dashboard:
-    build:
-      context: ./services/weather-dashboard
-    container_name: weather-dashboard
-    depends_on:
-      - rabbitmq
-    environment:
-      KAFKA_BROKER: kafka:9092
-    networks:
-      - rabbitmq_nodejs
 
-networks:
-  rabbitmq_nodejs:
+  order-service:
+    build: ./services/order-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  inventory-service:
+    build: ./services/inventory-service
+    ports:
+      - "3002:3002"
+    depends_on:
+      - mongodb
+
+  api-gateway:
+    build: ./services/api-gateway
+    ports:
+      - "4000:4000"
+    depends_on:
+      - user-service
+      - order-service
+      - inventory-service

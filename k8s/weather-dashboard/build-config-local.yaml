@@ -1,0 +1,15 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  name: your-local-build
+spec:
+  source:
+    local:
+      directory: ../../services/weather-dashboard
+  strategy:
+    dockerStrategy:
+      dockerfilePath: Dockerfile # Assuming your Dockerfile is in the root of your source directory
+  output:
+    to:
+      kind: ImageStreamTag
+      name: weather-dashboard:latest

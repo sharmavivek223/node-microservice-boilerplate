@@ -1,0 +1,18 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-dashboard
+  template:
+    metadata:
+      labels:
+        app: weather-dashboard
+    spec:
+      containers:
+      - name: weather-dashboard
+        image: weather-dashboard:latest

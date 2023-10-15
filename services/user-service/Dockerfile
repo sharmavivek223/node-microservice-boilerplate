@@ -1,5 +1,5 @@
 # Use an official Node.js runtime on Alpine Linux as a parent image
-FROM node:14-alpine
+FROM node:16-alpine
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
