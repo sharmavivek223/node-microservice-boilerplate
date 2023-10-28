@@ -1,14 +1,15 @@
 const express = require('express');
 const httpProxy = require('http-proxy');
+require("dotenv").config();
 
 const app = express();
 const PORT = 4000;
 const proxy = httpProxy.createProxyServer();
 
 const routes = {
-    'user': 'http://user-service:3000',
-    'order': 'http://order-service:3001',
-    'inventory': 'http://inventory-service:3002'
+    'user': `http://${process.env.NODE_ENV=='development'?'localhost':'user-service'}:3000`,
+    'order': `http://${process.env.NODE_ENV=='development'?'localhost':'order-service'}:3001`,
+    'inventory': `http://${process.env.NODE_ENV=='development'?'localhost':'inventory-service'}:3002`
 };
 
 // Middleware to forward requests
