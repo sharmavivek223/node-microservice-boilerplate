@@ -4,7 +4,8 @@ metadata:
   name: api-gateway
 spec:
   ports:
-  - port: 3000
-    targetPort: 3000
+  - protocol: TCP
+    port: 4000
+    targetPort: 4000
   selector:
     app: api-gateway

@@ -27,6 +27,7 @@ services:
     depends_on:
       - mongodb
       - rabbitmq
+      - user-service
 
   inventory-service:
     build: ./services/inventory-service

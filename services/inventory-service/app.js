@@ -56,6 +56,16 @@ app.get("/inventory/:itemId", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+app.post("/inventory", async (req, res) => {
+  try {
+    const item = new Inventory({ ...req.body });
+    await item.save();
+    res.send(item);
+  } catch (error) {
+    console.error("Error creating inventory item:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 // Only connect to the DB and start the server if this script is the main module being run
 if (require.main === module) {
