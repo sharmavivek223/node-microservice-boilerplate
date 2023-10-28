@@ -13,3 +13,16 @@
     ```bash
     npm run k8s-up
     ```
+- To tunnel services on kubernetes cluster
+   ```bash
+   minikube service <service-name>
+   ```
+   Eg:
+   ```bash
+   minikube service api-gateway
+   ```
+- To run tests on a service
+  ```bash 
+  cd ./path/to/service
+  npm jest
+  ```
